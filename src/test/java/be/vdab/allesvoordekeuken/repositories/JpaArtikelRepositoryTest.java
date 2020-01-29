@@ -78,4 +78,12 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
 //    void findByOnbestaandeWoordInNaamIsVerkeerd() {
 //        assertThatNullPointerException().isThrownBy(() -> repository.findByWoordInNaam(null));
 //    }
+    @Test
+    void algemeneVerhoog() {
+        assertThat(repository.algemeneVerhoog(BigDecimal.TEN))
+                .isEqualTo(super.countRowsInTable(ARTIKELS));
+        assertThat(super.jdbcTemplate.queryForObject(
+                "select verkoopprijs from artikels where id = ?", BigDecimal.class, idVanTestA()))
+                .isEqualByComparingTo("11");
+    }
 }

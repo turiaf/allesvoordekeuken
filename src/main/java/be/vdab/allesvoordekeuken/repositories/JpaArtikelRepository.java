@@ -4,6 +4,7 @@ import be.vdab.allesvoordekeuken.domain.Artikel;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,5 +39,13 @@ class JpaArtikelRepository implements ArtikelRepository {
         return manager.createNamedQuery("Artikel.findByWoordInNaam", Artikel.class)
                 .setParameter("woord", '%'+woord+ '%')
                 .getResultList();
+    }
+
+    @Override
+    public int algemeneVerhoog(BigDecimal percentage) {
+        BigDecimal factor = BigDecimal.ONE.add(percentage.divide(BigDecimal.valueOf(100)));
+        return manager.createNamedQuery("Artikel.algemeneVerhoog")
+                .setParameter("factor", factor)
+                .executeUpdate();
     }
 }
