@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import be.vdab.allesvoordekeuken.domain.Artikel;
+import be.vdab.allesvoordekeuken.domain.FoodArtikel;
+import be.vdab.allesvoordekeuken.domain.NonFoodArtikel;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,37 +25,67 @@ import static org.junit.jupiter.api.Assertions.*;
 class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextTests {
     private final JpaArtikelRepository repository;
     private static final String ARTIKELS = "artikels";
-    private Artikel artikel;
+//    private Artikel artikel;
 
-    @BeforeEach
+   /* @BeforeEach
     void beforeEach() {
         artikel = new Artikel("test", BigDecimal.ONE, BigDecimal.TEN);
-    }
+    }*/
 
     public JpaArtikelRepositoryTest(JpaArtikelRepository repository) {
         this.repository = repository;
     }
 
-    private long idVanTestA() {
-        return super.jdbcTemplate.queryForObject("select id from artikels where naam= 'testA'", Long.class);
+    private long idVanTestFoodArtikel() {
+        return super.jdbcTemplate.queryForObject(
+                "select id from artikels where naam= 'testFoodArtikel'", Long.class);
+    }
+    private long idVanNonFoodArtikel() {
+        return super.jdbcTemplate.queryForObject(
+                "select id from artikels where naam= 'testNonFoodArtikel'", Long.class);
     }
 
-    @Test
+    /*@Test
     void findById() {
         long id = idVanTestA();
         assertThat(repository.findById(id).get().getNaam()).isEqualTo("testA");
+    }*/
+    @Test
+    void findFoodArtikelById() {
+        long id = idVanTestFoodArtikel();
+        assertThat(((FoodArtikel)repository.findById(id).get()).getHoudbaarheid()).isEqualTo(1);
     }
+    @Test
+    void findNonFoodArtikelById() {
+        long id = idVanNonFoodArtikel();
+        assertThat(((NonFoodArtikel)repository.findById(id).get()).getGarantie()).isEqualTo(6);
+    }
+
 
     @Test
     void findByOnbestaandeId() {
         assertThat(repository.findById(-1)).isNotPresent();
     }
 
-    @Test
+    /*@Test
     void create() {
         repository.create(artikel);
         assertThat(artikel.getId()).isPositive();
         assertThat(super.countRowsInTableWhere(ARTIKELS, "id= " + artikel.getId())).isOne();
+    }*/
+    @Test
+    void createFoodArtikel() {
+        FoodArtikel foodArtikel = new FoodArtikel("testFoodArtikel2", BigDecimal.TEN, BigDecimal.TEN, 2);
+        repository.create(foodArtikel);
+        assertThat(foodArtikel.getId()).isPositive();
+        assertThat(super.countRowsInTableWhere(ARTIKELS, "id= " + foodArtikel.getId())).isOne();
+    }
+    @Test
+    void createNonFoodArtikel() {
+        NonFoodArtikel nonFoodArtikel = new NonFoodArtikel("testFoodArtikel2", BigDecimal.TEN, BigDecimal.TEN, 5);
+        repository.create(nonFoodArtikel);
+        assertThat(nonFoodArtikel.getId()).isPositive();
+        assertThat(super.countRowsInTableWhere(ARTIKELS, "id= " + nonFoodArtikel.getId())).isOne();
     }
 
     @Test
@@ -83,7 +115,7 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
         assertThat(repository.algemeneVerhoog(BigDecimal.TEN))
                 .isEqualTo(super.countRowsInTable(ARTIKELS));
         assertThat(super.jdbcTemplate.queryForObject(
-                "select verkoopprijs from artikels where id = ?", BigDecimal.class, idVanTestA()))
+                "select verkoopprijs from artikels where id = ?", BigDecimal.class, idVanTestFoodArtikel()))
                 .isEqualByComparingTo("11");
     }
 }
