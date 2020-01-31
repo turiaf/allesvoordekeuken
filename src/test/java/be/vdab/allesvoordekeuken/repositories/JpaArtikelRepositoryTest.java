@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import be.vdab.allesvoordekeuken.domain.Artikel;
 import be.vdab.allesvoordekeuken.domain.FoodArtikel;
+import be.vdab.allesvoordekeuken.domain.Korting;
 import be.vdab.allesvoordekeuken.domain.NonFoodArtikel;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,5 +118,11 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
         assertThat(super.jdbcTemplate.queryForObject(
                 "select verkoopprijs from artikels where id = ?", BigDecimal.class, idVanTestFoodArtikel()))
                 .isEqualByComparingTo("11");
+    }
+
+    @Test
+    void lezenKorting() {
+        Artikel artikel = repository.findById(idVanTestFoodArtikel()).get();
+        assertThat(artikel.getKortings()).containsOnly(new Korting(2, BigDecimal.TEN));
     }
 }
