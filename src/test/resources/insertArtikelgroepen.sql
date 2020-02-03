@@ -1,0 +1,1 @@
+insert into artikelgroepen (naam) VALUES ('test');
