@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,6 +53,7 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
         return super.jdbcTemplate.queryForObject(
                 "select id from artikels where naam= 'testFoodArtikel'", Long.class);
     }
+
     private long idVanNonFoodArtikel() {
         return super.jdbcTemplate.queryForObject(
                 "select id from artikels where naam= 'testNonFoodArtikel'", Long.class);
@@ -65,12 +67,13 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
     @Test
     void findFoodArtikelById() {
         long id = idVanTestFoodArtikel();
-        assertThat(((FoodArtikel)repository.findById(id).get()).getHoudbaarheid()).isEqualTo(1);
+        assertThat(((FoodArtikel) repository.findById(id).get()).getHoudbaarheid()).isEqualTo(1);
     }
+
     @Test
     void findNonFoodArtikelById() {
         long id = idVanNonFoodArtikel();
-        assertThat(((NonFoodArtikel)repository.findById(id).get()).getGarantie()).isEqualTo(6);
+        assertThat(((NonFoodArtikel) repository.findById(id).get()).getGarantie()).isEqualTo(6);
     }
 
 
@@ -101,6 +104,7 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
         assertThat(artikel.getId()).isPositive();
         assertThat(super.countRowsInTableWhere(ARTIKELS, "id= " + artikel.getId())).isOne();
     }
+
     @Test
     void createNonFoodArtikel() {
 
@@ -122,14 +126,18 @@ class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringContextT
         assertThat(repository.findByWoordInNaam(woord))
                 .hasSize(super.countRowsInTableWhere(ARTIKELS, "naam like '%"+ woord+ "%'"))
                 .allSatisfy(artikel -> assertThat(artikel.getNaam()).contains(woord));*/
-        assertThat(repository.findByWoordInNaam("te"))
+        List<Artikel> artikelList = repository.findByWoordInNaam("te");
+        assertThat(artikelList)
                 .hasSize(super.jdbcTemplate.queryForObject("select count(*) from artikels where naam like '%te%'", Integer.class))
                 .extracting(artikel -> artikel.getNaam().toLowerCase())
                 .allSatisfy(naam -> assertThat(naam).contains("te"))
                 .isSorted();
+        manager.clear();
+        assertThat(artikelList)
+                .extracting(artikel -> artikel.getArtikelGroep().getNaam());
     }
 
-//    @Test
+    //    @Test
 //    void findByLeegWoordInNaamIsVerkeerd() {
 //        assertThatIllegalArgumentException().isThrownBy(() -> repository.findByWoordInNaam(""));
 //    }

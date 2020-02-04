@@ -38,6 +38,8 @@ class JpaArtikelRepository implements ArtikelRepository {
                 .getResultList();*/
         return manager.createNamedQuery("Artikel.findByWoordInNaam", Artikel.class)
                 .setParameter("woord", '%'+woord+ '%')
+                .setHint("javax.persistence.loadgraph",
+                        manager.createEntityGraph(Artikel.MET_ARTIKELGROEP))
                 .getResultList();
     }
 
